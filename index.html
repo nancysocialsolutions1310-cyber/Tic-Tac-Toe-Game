@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        /* CSS for the Game */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a0033; /* Dark Purple Background */
+            color: #fff;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        /* --- Start Screen Styling --- */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative; /* For positioning the light effect */
+        }
+		
+        /* --- LOGO Image Styling --- */
+        #game-logo {
+            width: 80vw; /* Responsive width */
+            max-width: 250px; /* Max size for larger screens */
+            height: auto; /* Maintain aspect ratio */
+            margin-bottom: 40px; /* Space below the logo */
+            box-shadow: 
+                0 0 15px rgba(255, 102, 255, 0.7), /* Pink/Purple glow */
+                0 0 30px rgba(255, 102, 255, 0.5),
+                0 0 45px rgba(255, 102, 255, 0.3);
+            border-radius: 15px; /* Slightly rounded corners for the image */
+            transition: transform 0.3s ease-in-out; /* Smooth hover effect */
+        }
+
+        #game-logo:hover {
+            transform: scale(1.03); /* Slightly enlarge on hover */
+        }
+		
+        /* --- LOGO Styling (Responsive & Single Line) --- */
+        #start-screen h1 {
+            /* Responsive Font Size: The font size scales with the viewport width */
+            font-size: 8vw; /* Changed to vw for responsiveness */
+            
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5vw; /* Changed to vw for responsiveness */
+            
+            /* Ensures the text stays on one line */
+            white-space: nowrap; 
+            
+            /* Neon Glow Effect */
+            color: #00bfff; 
+            text-shadow: 
+                0 0 7px #00bfff,
+                0 0 15px #00bfff,
+                0 0 30px #00bfff;
+            position: relative;
+            z-index: 2; 
+        }
+        
+        /* --- Moving Light Effect (New Addition) --- */
+        #start-screen h1::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(
+                90deg, 
+                transparent, 
+                rgba(255, 0, 255, 0.8), /* Magenta Glow */
+                transparent
+            );
+            z-index: 1;
+            /* Initial position and animation */
+            transform: translateX(-100%) skewX(-30deg); 
+            animation: moveLight 3s linear infinite alternate; /* Light moves left to right and back */
+            opacity: 0.7;
+        }
+
+        /* Keyframes for the sliding light effect */
+        @keyframes moveLight {
+            0% { transform: translateX(-100%) skewX(-30deg); }
+            100% { transform: translateX(100%) skewX(-30deg); }
+        }
+
+        /* START BUTTON Styling */
+        #start-button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1a0033; /* Dark text for contrast */
+            background-color: #00ffaa; /* Neon Green */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00ffaa, 0 0 25px #00ffaa, 0 0 40px #00ffaa;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        #start-button:hover {
+            background-color: #00cc88;
+            box-shadow: 0 0 15px #00ffaa, 0 0 35px #00ffaa, 0 0 50px #00ffaa;
+        }
+        
+        /* --- Game Board and Status Styling (Same as before) --- */
+        #game-container {
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #status {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            color: #ff99ff;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            width: 90vw; 
+            max-width: 300px; 
+            height: 90vw;
+            max-height: 300px;
+            border: 4px solid #4a008a;
+            box-shadow: 0 0 20px #4a008a;
+            position: relative;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px solid #4a008a;
+            transition: background-color 0.1s;
+        }
+
+        .cell:hover:not(.occupied) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .cell.O {
+            color: #00bfff;
+            text-shadow: 0 0 5px #00bfff, 0 0 10px #00bfff;
+        }
+
+        .cell.X {
+            color: #ff33cc;
+            text-shadow: 0 0 5px #ff33cc, 0 0 10px #ff33cc;
+        }
+
+        .win-line {
+            position: absolute;
+            background: #ffcc00; 
+            box-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00;
+            z-index: 10;
+        }
+        
+        .line-row { height: 6px; width: 100%; top: 50%; left: 0; transform: translateY(-50%); }
+        .line-col { width: 6px; height: 100%; top: 0; left: 50%; transform: translateX(-50%); }
+        .line-diag1 { width: 140%; height: 6px; top: 50%; left: -20%; transform: rotate(45deg); }
+        .line-diag2 { width: 140%; height: 6px; top: 50%; left: -20%; transform: rotate(-45deg); }
+
+        #reset-button {
+            margin-top: 30px;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            color: #1a0033;
+            background-color: #ff99ff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none; 
+            box-shadow: 0 0 8px #ff99ff;
+            transition: all 0.3s ease;
+        }
+
+        #reset-button:hover {
+             background-color: #ff66ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+		<img id="game-logo" src="tictactoe_logo.png" alt="Tic Tac Toe Logo">
+        <h1>Tic-Tac-Toe</h1>
+        <button id="start-button">START GAME</button>
+    </div>
+
+    <div id="game-container">
+        <div id="status">Player (O) vs Computer (X)</div>
+        <div class="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        <button id="reset-button">Play Again</button>
+    </div>
+
+    <script>
+        // JavaScript for the Game Logic and AI (No change from previous version)
+
+        const startScreen = document.getElementById('start-screen');
+        const gameContainer = document.getElementById('game-container');
+        const startButton = document.getElementById('start-button');
+        const cells = document.querySelectorAll('.cell');
+        const statusDisplay = document.getElementById('status');
+        const resetButton = document.getElementById('reset-button');
+        const boardElement = document.querySelector('.board');
+
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let isGameActive = false;
+        let currentPlayer = 'O'; 
+        const computerPlayer = 'X'; 
+        
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], 
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], 
+            [0, 4, 8], [2, 4, 6]            
+        ];
+
+        // --- Game Setup and Control ---
+
+        const startGame = () => {
+            startScreen.style.display = 'none';
+            gameContainer.style.display = 'flex';
+            resetGame();
+        };
+        
+        const resetGame = () => {
+            board = ["", "", "", "", "", "", "", "", ""];
+            isGameActive = true;
+            currentPlayer = 'O'; 
+            statusDisplay.textContent = "Your turn (O)";
+            resetButton.style.display = 'none';
+
+            cells.forEach(cell => {
+                cell.textContent = "";
+                cell.classList.remove('O', 'X', 'occupied');
+            });
+            
+            const existingLine = boardElement.querySelector('.win-line');
+            if (existingLine) {
+                boardElement.removeChild(existingLine);
+            }
+        };
+
+        const handleCellClick = (event) => {
+            const clickedCell = event.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+            if (board[clickedCellIndex] !== "" || !isGameActive || currentPlayer !== 'O') {
+                return;
+            }
+
+            handleMove(clickedCellIndex, currentPlayer);
+            
+            if (isGameActive) {
+                currentPlayer = computerPlayer;
+                statusDisplay.textContent = "Computer's turn (X)...";
+                setTimeout(computerMove, 500); 
+            }
+        };
+
+        const handleMove = (index, player) => {
+            board[index] = player;
+            cells[index].textContent = player;
+            cells[index].classList.add(player, 'occupied');
+            
+            checkResult();
+            
+            if (isGameActive && player === computerPlayer) {
+                currentPlayer = 'O';
+                statusDisplay.textContent = "Your turn (O)";
+            }
+        };
+
+        // --- Winning/Tie Logic ---
+        
+        const checkResult = () => {
+            let roundWon = false;
+            let winningCombo = null;
+            
+            for (let i = 0; i < winningConditions.length; i++) {
+                const winCondition = winningConditions[i];
+                let a = board[winCondition[0]];
+                let b = board[winCondition[1]];
+                let c = board[winCondition[2]];
+
+                if (a === '' || b === '' || c === '') {
+                    continue;
+                }
+                if (a === b && b === c) {
+                    roundWon = true;
+                    winningCombo = winCondition;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                statusDisplay.textContent = `${currentPlayer === 'O' ? 'You' : 'Computer'} won! 🏆`;
+                isGameActive = false;
+                drawWinLine(winningCombo);
+                resetButton.style.display = 'block';
+                return;
+            }
+
+            let roundDraw = !board.includes("");
+            if (roundDraw) {
+                statusDisplay.textContent = "It's a draw! 🤝";
+                isGameActive = false;
+                resetButton.style.display = 'block';
+                return;
+            }
+        };
+
+        const drawWinLine = (combo) => {
+            const line = document.createElement('div');
+            line.classList.add('win-line');
+            boardElement.appendChild(line);
+
+            const isRow = combo[0] + 1 === combo[1] && combo[1] + 1 === combo[2];
+            const isCol = combo[0] + 3 === combo[1] && combo[1] + 3 === combo[2];
+            const isDiag1 = combo[0] === 0 && combo[1] === 4 && combo[2] === 8;
+            const isDiag2 = combo[0] === 2 && combo[1] === 4 && combo[2] === 6;
+
+            if (isRow) {
+                line.classList.add('line-row');
+                line.style.top = `${(combo[0] / 3) * 33.33 + 16.66}%`;
+            } else if (isCol) {
+                line.classList.add('line-col');
+                line.style.left = `${(combo[0] % 3) * 33.33 + 16.66}%`; 
+            } else if (isDiag1) {
+                line.classList.add('line-diag1');
+            } else if (isDiag2) {
+                line.classList.add('line-diag2');
+            }
+        };
+        
+        // --- Simple Computer AI Logic ---
+        
+        const computerMove = () => {
+            if (!isGameActive) return;
+
+            let bestMove = -1;
+            
+            bestMove = getBestMove(computerPlayer);
+            if (bestMove !== -1) {
+                handleMove(bestMove, computerPlayer);
+                return;
+            }
+            
+            bestMove = getBestMove('O');
+            if (bestMove !== -1) {
+                handleMove(bestMove, computerPlayer);
+                return;
+            }
+            
+            if (board[4] === "") {
+                handleMove(4, computerPlayer);
+                return;
+            }
+            
+            const corners = [0, 2, 6, 8];
+            for (const corner of corners) {
+                if (board[corner] === "") {
+                    handleMove(corner, computerPlayer);
+                    return;
+                }
+            }
+            
+            const sides = [1, 3, 5, 7];
+            for (const side of sides) {
+                if (board[side] === "") {
+                    handleMove(side, computerPlayer);
+                    return;
+                }
+            }
+        };
+
+        const getBestMove = (player) => {
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                const cells = [board[a], board[b], board[c]];
+                
+                const playerCount = cells.filter(mark => mark === player).length;
+                const emptyIndex = cells.findIndex(mark => mark === "");
+                
+                if (playerCount === 2 && emptyIndex !== -1) {
+                    return winningConditions[i][emptyIndex];
+                }
+            }
+            return -1;
+        };
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startGame);
+        resetButton.addEventListener('click', resetGame);
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+
+    </script>
+</body>
+</html>
