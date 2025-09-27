@@ -3,31 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic Tac Toe</title>
-	<link rel="icon" type="image/png" href="tictactoe_favicon.png"> 
+    <title>Neon Tic Tac Toe</title>
+    <link rel="icon" type="image/png" href="tictactoe_favicon.png"> 
     <style>
         /* CSS for the Game */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            /* Changed min-height to 100% to allow ads to push content */
+            min-height: 100vh; 
             margin: 0;
             background-color: #1a0033; /* Dark Purple Background */
             color: #fff;
             user-select: none;
-            overflow: hidden;
+            /* Removed overflow: hidden so that ad bars don't get cut off */
+            /* overflow: hidden; */ 
         }
 
+        /* --- Ad Container Styling (New Addition) --- */
+        .ad-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 0; /* Add padding above/below ad */
+            background-color: #0d001a; /* Slightly lighter background for ad sections */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            /* Important for fixed ads, though not strictly needed for non-fixed */
+            /* max-width: 468px; If you want the ad itself centered and constrained */
+        }
+        
         /* --- Start Screen Styling --- */
         #start-screen {
             display: flex;
             flex-direction: column;
+            justify-content: center; /* Center content vertically between ads */
             align-items: center;
             padding: 20px;
-            position: relative; /* For positioning the light effect */
+            position: relative; 
+            /* Added min-height to ensure start screen takes full space minus ads */
+            flex-grow: 1; 
         }
 		
         /* --- LOGO Image Styling --- */
@@ -41,26 +57,20 @@
                 0 0 30px rgba(255, 102, 255, 0.5),
                 0 0 45px rgba(255, 102, 255, 0.3);
             border-radius: 15px; /* Slightly rounded corners for the image */
-            transition: transform 0.3s ease-in-out; /* Smooth hover effect */
+            transition: transform 0.3s ease-in-out; 
         }
 
         #game-logo:hover {
-            transform: scale(1.03); /* Slightly enlarge on hover */
+            transform: scale(1.03); 
         }
 		
-        /* --- LOGO Styling (Responsive & Single Line) --- */
+        /* --- LOGO Text Styling --- */
         #start-screen h1 {
-            /* Responsive Font Size: The font size scales with the viewport width */
-            font-size: 8vw; /* Changed to vw for responsiveness */
-            
+            font-size: 8vw; 
             margin-bottom: 30px;
             text-transform: uppercase;
-            letter-spacing: 0.5vw; /* Changed to vw for responsiveness */
-            
-            /* Ensures the text stays on one line */
+            letter-spacing: 0.5vw; 
             white-space: nowrap; 
-            
-            /* Neon Glow Effect */
             color: #00bfff; 
             text-shadow: 
                 0 0 7px #00bfff,
@@ -70,7 +80,7 @@
             z-index: 2; 
         }
         
-        /* --- Moving Light Effect (New Addition) --- */
+        /* --- Moving Light Effect --- */
         #start-screen h1::before {
             content: '';
             position: absolute;
@@ -85,13 +95,11 @@
                 transparent
             );
             z-index: 1;
-            /* Initial position and animation */
             transform: translateX(-100%) skewX(-30deg); 
-            animation: moveLight 3s linear infinite alternate; /* Light moves left to right and back */
+            animation: moveLight 3s linear infinite alternate; 
             opacity: 0.7;
         }
 
-        /* Keyframes for the sliding light effect */
         @keyframes moveLight {
             0% { transform: translateX(-100%) skewX(-30deg); }
             100% { transform: translateX(100%) skewX(-30deg); }
@@ -102,8 +110,8 @@
             padding: 15px 30px;
             font-size: 1.5em;
             font-weight: bold;
-            color: #1a0033; /* Dark text for contrast */
-            background-color: #00ffaa; /* Neon Green */
+            color: #1a0033; 
+            background-color: #00ffaa; 
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -117,11 +125,13 @@
             box-shadow: 0 0 15px #00ffaa, 0 0 35px #00ffaa, 0 0 50px #00ffaa;
         }
         
-        /* --- Game Board and Status Styling (Same as before) --- */
+        /* --- Game Board and Status Styling --- */
         #game-container {
             display: none; 
             flex-direction: column;
             align-items: center;
+            justify-content: center; /* Center content vertically between ads */
+            flex-grow: 1; /* Allows game container to take available space */
         }
 
         #status {
@@ -203,8 +213,20 @@
 </head>
 <body>
 
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '16a502080d5a846fc5b18c305ec9b6b7',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/16a502080d5a846fc5b18c305ec9b6b7/invoke.js"></script>
+    </div>
     <div id="start-screen">
-		<img id="game-logo" src="tictactoe_logo.png" alt="Tic Tac Toe Logo">
+        <img id="game-logo" src="tictactoe_logo.png" alt="Tic Tac Toe Logo">
         <h1>Tic-Tac-Toe</h1>
         <button id="start-button">START GAME</button>
     </div>
@@ -225,6 +247,18 @@
         <button id="reset-button">Play Again</button>
     </div>
 
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '16a502080d5a846fc5b18c305ec9b6b7',
+                'format' : 'iframe',
+                'height' : 60,
+                'width' : 468,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/16a502080d5a846fc5b18c305ec9b6b7/invoke.js"></script>
+    </div>
     <script>
         // JavaScript for the Game Logic and AI (No change from previous version)
 
@@ -428,5 +462,4 @@
 
     </script>
 </body>
-
 </html>
